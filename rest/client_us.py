@@ -7,7 +7,6 @@ import hmac
 from ciso8601 import parse_datetime
 
 
-
 class FtxClient:
     _ENDPOINT = 'https://ftx.us/api/'
 
@@ -35,15 +34,18 @@ class FtxClient:
     def _sign_request(self, request: Request) -> None:
         ts = int(time.time() * 1000)
         prepared = request.prepare()
-        signature_payload = f'{ts}{prepared.method}{prepared.path_url}'.encode()
+        signature_payload = f'{ts}{prepared.method}{prepared.path_url}'.encode(
+        )
         if prepared.body:
             signature_payload += prepared.body
-        signature = hmac.new(self._api_secret.encode(), signature_payload, 'sha256').hexdigest()
+        signature = hmac.new(self._api_secret.encode(),
+                             signature_payload, 'sha256').hexdigest()
         request.headers['FTXUS-KEY'] = self._api_key
         request.headers['FTXUS-SIGN'] = signature
         request.headers['FTXUS-TS'] = str(ts)
         if self._subaccount_name:
-            request.headers['FTXUS-SUBACCOUNT'] = urllib.parse.quote(self._subaccount_name)
+            request.headers['FTXUS-SUBACCOUNT'] = urllib.parse.quote(
+                self._subaccount_name)
 
     def _process_response(self, response: Response) -> Any:
         try:
@@ -109,7 +111,8 @@ class FtxClient:
     ) -> dict:
         assert (existing_order_id is None) ^ (existing_client_order_id is None), \
             'Must supply exactly one ID for the order to modify'
-        assert (price is None) or (size is None), 'Must modify price or size of order'
+        assert (price is None) or (
+            size is None), 'Must modify price or size of order'
         path = f'orders/{existing_order_id}/modify' if existing_order_id is not None else \
             f'orders/by_client_id/{existing_client_order_id}/modify'
         return self._post(path, {
@@ -179,8 +182,8 @@ class FtxClient:
         })
 
     def get_fills(self, market: str = None, start_time: float = None,
-        end_time: float = None, min_id: int = None, order_id: int = None
-    ) -> List[dict]:
+                  end_time: float = None, min_id: int = None, order_id: int = None
+                  ) -> List[dict]:
         return self._get('fills', {
             'market': market,
             'start_time': start_time,
@@ -231,7 +234,8 @@ class FtxClient:
             print(f'Adding {len(response)} trades with end time {end_time}')
             if len(response) == 0:
                 break
-            end_time = min(parse_datetime(t['time']) for t in response).timestamp()
+            end_time = min(parse_datetime(t['time'])
+                           for t in response).timestamp()
             if len(response) < limit:
                 break
         return results
@@ -297,7 +301,7 @@ class FtxClient:
     def place_staking_request(self, coin: str = 'SRM', size: float = None) -> dict:
         return self._post('srm_stakes/stakes',)
 
-    def get_funding_rates(self, future: str = None, start_time: float = None, end_time: float = None)-> List[dict]:
+    def get_funding_rates(self, future: str = None, start_time: float = None, end_time: float = None) -> List[dict]:
         return self._get('funding_rates', {
             'future': future,
             'start_time': start_time,
@@ -342,11 +346,11 @@ class FtxClient:
 
     def submit_fiat_withdrawal(self, coin: str, size: int, saved_address_id: int, code: int = None) -> Dict:
         return self._post('wallet/fiat_withdrawals', {
-        'coin': coin,
-        'size': size,
-        'savedAddressId': saved_address_id,
-        'code': code
-    })
+            'coin': coin,
+            'size': size,
+            'savedAddressId': saved_address_id,
+            'code': code
+        })
 
     def get_latency_stats(self, days: int = 1, subaccount_nickname: str = None) -> Dict:
         return self._get('stats/latency_stats', {'days': days, 'subaccount_nickname': subaccount_nickname})
