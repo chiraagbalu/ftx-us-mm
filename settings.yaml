@@ -1,4 +1,15 @@
-size: 3,
-edge: 0.1
-markets:
-  - 'DOGE/USD'
+SOL/USD : {
+  minsize: 0.01,
+  size: 0.01,
+  edge: 0.2
+}
+ETH/USD : {
+  minsize: 0.001,
+  size: 0.001,
+  edge: 0.1
+}
+BTC/USD : {
+  minsize: 0.0001,
+  size: 0.0001,
+  edge: 0.1
+}

@@ -29,19 +29,16 @@ while True:
 
     if i % 1000000 == 0:
         with open("settings.yaml", "r") as f:
-            settings = yaml.load(f)
-
-        size = settings['size']
-        edge = settings['edge']
-        markets = settings['markets']
+            settings = yaml.safe_load(f)
 
     # get our open orders
     # orderdf = pd.DataFrame(rest.get_open_orders())
     # per market
-
+    markets = settings.keys()
     for market in markets:
+        print(f'{market} settings: {settings[market]}')
         continue
-        print('-'*35)ç
+        print('-'*35)
         print(f'{market}')
 
         # get orderbook data, top 10 bids and asks
