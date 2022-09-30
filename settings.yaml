@@ -1,0 +1,4 @@
+size: 3,
+edge: 0.1
+markets:
+  - 'DOGE/USD'

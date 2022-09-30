@@ -1,8 +1,10 @@
 import pandas as pd
 import traceback
+import yaml
+from datetime import datetime
 
 from websock.client import FtxWebsocketClient
-from websock.websocket_manager import WebsocketManager
+# from websock.websocket_manager import WebsocketManager
 from rest import client_us as restclient
 
 import os
@@ -21,15 +23,25 @@ rest = restclient.FtxClient(api_key=API_KEY, api_secret=SECRET_KEY)
 sock = FtxWebsocketClient()
 sock.connect()
 
-# set markets
-markets = ['DOGE/USD']  # , 'SHIB/USD']
-
+i = 0
 
 while True:
+
+
+    if i % 1000000 == 0:
+        with open("settings.yaml", "r") as f:
+            settings = yaml.load(f)
+
+        size = settings['size']
+        edge = settings['edge']
+        markets = settings['markets']
+
     # get our open orders
-    orderdf = pd.DataFrame(rest.get_open_orders())
+    # orderdf = pd.DataFrame(rest.get_open_orders())
     # per market
+    
     for market in markets:
+        continue
         print('-'*35)
         print(f'{market}')
 
@@ -45,10 +57,6 @@ while True:
         bestbid_size = bids.iloc[0]['size']
 
         mid = (bestbid_price+bestask_price)/2
-        # lot size to quote - TODO: do this based on notional value of portfolio or something
-        size = 1
-        # spread for one side - currently 0.9, 1.1 x mid
-        edge = 0.1
 
         # set bid and ask
         bid_price = mid*(1-edge)
