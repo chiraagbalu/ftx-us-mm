@@ -1,5 +1,5 @@
 DOGE/USD : {
   minsize: 1,
   size: 1, 
-  spread_sigma: 100,
+  spread_sigma: 5,
 }
