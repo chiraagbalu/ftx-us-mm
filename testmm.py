@@ -32,14 +32,17 @@ while True:
             settings = yaml.safe_load(f)
 
     # get our open orders
-    # orderdf = pd.DataFrame(rest.get_open_orders())
+    orderdf = pd.DataFrame(rest.get_open_orders())
     # per market
     markets = settings.keys()
     for market in markets:
         print(f'{market} settings: {settings[market]}')
-        continue
         print('-'*35)
         print(f'{market}')
+
+        # get params
+        size = settings[market]['size']
+        edge = settings[market]['edge']
 
         # get orderbook data, top 10 bids and asks
         asks = pd.DataFrame(sock.get_orderbook(market)['asks'][0:11]).rename(

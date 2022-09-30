@@ -1,15 +1,22 @@
+DOGE/USD : {
+  minsize: 1,
+  size: 1, 
+  edge: 0.05,
+}
+"""
 SOL/USD : {
   minsize: 0.01,
   size: 0.01,
-  edge: 0.2
+  edge: 0.2,
 }
 ETH/USD : {
   minsize: 0.001,
   size: 0.001,
-  edge: 0.1
+  edge: 0.1,
 }
 BTC/USD : {
   minsize: 0.0001,
   size: 0.0001,
-  edge: 0.1
+  edge: 0.1,
 }
+"""
