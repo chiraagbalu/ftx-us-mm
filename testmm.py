@@ -2,6 +2,7 @@ import pandas as pd
 import traceback
 import yaml
 from datetime import datetime
+import time
 
 from websock.client import FtxWebsocketClient
 # from websock.websocket_manager import WebsocketManager
@@ -39,10 +40,14 @@ while True:
         print(f'{market} settings: {settings[market]}')
         print('-'*35)
         print(f'{market}')
-
+        lookback = 5
+        ohlc_15s = pd.DataFrame(rest.get_historical_prices(
+            market, resolution=15, start_time=time.time()-15*lookback))
+        stdv = ohlc_15s['close'].std()
+        spread_sigma = settings[market]['spread_sigma']
         # get params
         size = settings[market]['size']
-        edge = settings[market]['edge']
+        # edge = settings[market]['edge']
 
         # get orderbook data, top 10 bids and asks
         asks = pd.DataFrame(sock.get_orderbook(market)['asks'][0:11]).rename(
@@ -58,8 +63,14 @@ while True:
         mid = (bestbid_price+bestask_price)/2
 
         # set bid and ask
-        bid_price = mid*(1-edge)
-        ask_price = mid*(1+edge)
+        bid_price = mid*(1-(spread_sigma*stdv))
+        ask_price = mid*(1+(spread_sigma*stdv))
+
+        print(f'{market} mid: {mid}')
+        print(f'{market}: stdv: {stdv}')
+        print(f'{market}: nbbo: {bestbid_price} @ {bestask_price}')
+        print(f'{market}: intended quote: {bid_price} @ {ask_price}')
+        # continue
 
         # if we don't have anything in the order df, then place order initially
         if len(orderdf) == 0:
