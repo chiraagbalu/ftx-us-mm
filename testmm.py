@@ -41,9 +41,9 @@ while True:
         print('-'*35)
         print(f'{market}')
         lookback = 5
-        ohlc_15s = pd.DataFrame(rest.get_historical_prices(
-            market, resolution=15, start_time=time.time()-15*lookback))
-        stdv = ohlc_15s['close'].std()
+        ohlc_s = pd.DataFrame(rest.get_historical_prices(
+            market, resolution=60, start_time=time.time()-5*lookback))
+        stdv = ohlc_s['close'].std()
         spread_sigma = settings[market]['spread_sigma']
         # get params
         size = settings[market]['size']
