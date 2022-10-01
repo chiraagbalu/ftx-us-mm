@@ -112,7 +112,7 @@ while True:
         if not cur_quote[cur_quote['side'] == 'sell'].empty:
             cur_ask_id = cur_quote[cur_quote['side'] == 'sell']['id'].item()
             cur_ask = cur_quote[cur_quote['side'] == 'sell']['price'].item()
-            nobid = True
+            nobid = False
 
         # get current inventory
         inventory = pd.DataFrame(rest.get_balances())[
