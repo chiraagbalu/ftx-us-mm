@@ -92,6 +92,7 @@ while True:
         size = settings[market]['size']
         sigma = settings[market]['sigma']
         fade = settings[market]['fade']
+        maxquotes = 1
 
         # calculate realized vol
         lookback = 4
@@ -105,13 +106,41 @@ while True:
         cur_ask = 0
         nobid = True
         noask = True
-        if not cur_quote[cur_quote['side'] == 'buy'].empty:
-            cur_bid_id = cur_quote[cur_quote['side'] == 'buy']['id'].item()
-            cur_bid = cur_quote[cur_quote['side'] == 'buy']['price'].item()
+        buy_quote = cur_quote[cur_quote['side'] == 'buy']
+        sell_quote = cur_quote[cur_quote['side'] == 'sell']
+        if not buy_quote.empty:
+            print(f'{market} bids: {len(buy_quote)}')
+
+            if len(buy_quote) > maxquotes:
+                print(f'canceling: {len(buy_quote) - maxquotes}')
+                cancel_buys = buy_quote.sort_values(by='price')[:-maxquotes]
+                cancel_ids = list(cancel_buys['id'])
+                for id in cancel_ids:
+                    try:
+                        rest.cancel_order(id)
+                    except Exception as error:
+                        print(error)
+
+            print(f'{market} bids: {len(buy_quote)}')
+            cur_bid_id = buy_quote['id'].item()
+            cur_bid = buy_quote['price'].item()
             nobid = False
-        if not cur_quote[cur_quote['side'] == 'sell'].empty:
-            cur_ask_id = cur_quote[cur_quote['side'] == 'sell']['id'].item()
-            cur_ask = cur_quote[cur_quote['side'] == 'sell']['price'].item()
+        if not sell_quote.empty:
+            print(f'{market} asks: {len(sell_quote)}')
+
+            if len(sell_quote) > maxquotes:
+                print(f'canceling: {len(sell_quote) - maxquotes}')
+                cancel_sells = sell_quote.sort_values(by='price')[:-maxquotes]
+                cancel_ids = list(cancel_sells['id'])
+                for id in cancel_ids:
+                    try:
+                        rest.cancel_order(id)
+                    except Exception as error:
+                        print(error)
+
+            print(f'{market} asks: {len(sell_quote)}')
+            cur_ask_id = sell_quote['id'].item()
+            cur_ask = sell_quote['price'].item()
             nobid = False
 
         # get current inventory
