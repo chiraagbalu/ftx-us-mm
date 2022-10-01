@@ -1,18 +1,18 @@
 BTC/USD : {
   minsize: 0.0001,
   size: 0.0001, 
-  spread_sigma: 3,
-  fade: 0.01,
+  sigma: 2,
+  fade: 0.00,
 }
 ETH/USD : {
   minsize: 0.001, 
   size: 0.001, 
-  spread_sigma: 3,
-  fade: 0.01,
+  sigma: 2,
+  fade: 0.00,
 }
 SOL/USD: {
   minsize: 0.01,
   size: 0.01,
-  spread_sigma: 3,
-  fade: 0.01,
+  sigma: 2,
+  fade: 0.00,
 }
