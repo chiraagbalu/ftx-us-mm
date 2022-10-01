@@ -80,14 +80,16 @@ for coin in coins:
 
 
 while True:
+
     # update settings
     with open("settings.yaml", "r") as f:
         settings = yaml.safe_load(f)
-    # get orders
-    orders = pd.DataFrame(rest.get_open_orders())
+
     # for each market
+    orders = pd.DataFrame(rest.get_open_orders())
     for market in markets:
         start = time.time()
+
         # get params
         size = settings[market]['size']
         sigma = settings[market]['sigma']
@@ -100,14 +102,15 @@ while True:
         r_vol = pd.DataFrame(rest.get_historical_prices(
             market, resolution=seconds, start_time=time.time()-seconds*lookback))['close'].std()
 
-        # get current order prices
-        cur_quote = orders[orders['market'] == market]
+        # get current quote info
         cur_bid = 0
         cur_ask = 0
         nobid = True
         noask = True
+        cur_quote = orders[orders['market'] == market]
         buy_quote = cur_quote[cur_quote['side'] == 'buy']
         sell_quote = cur_quote[cur_quote['side'] == 'sell']
+
         if not buy_quote.empty:
             print(f'{market} bids: {len(buy_quote)}')
 
@@ -120,11 +123,13 @@ while True:
                         rest.cancel_order(id)
                     except Exception as error:
                         print(error)
+                buy_quote = buy_quote.sort_values(by='price')[-maxquotes:]
 
             print(f'{market} bids: {len(buy_quote)}')
             cur_bid_id = buy_quote['id'].item()
             cur_bid = buy_quote['price'].item()
             nobid = False
+
         if not sell_quote.empty:
             print(f'{market} asks: {len(sell_quote)}')
 
@@ -137,11 +142,12 @@ while True:
                         rest.cancel_order(id)
                     except Exception as error:
                         print(error)
+                sell_quote = sell_quote.sort_values(by='price')[-maxquotes:]
 
             print(f'{market} asks: {len(sell_quote)}')
             cur_ask_id = sell_quote['id'].item()
             cur_ask = sell_quote['price'].item()
-            nobid = False
+            noask = False
 
         # get current inventory
         inventory = pd.DataFrame(rest.get_balances())[
@@ -189,5 +195,6 @@ while True:
                     rest.modify_order(cur_ask_id, price=our_ask)
             except Exception as error:
                 print(error)
+
         print(f'time elapsed: {time.time()-start}')
         print(f'{market} | {our_bid} | {mid} | {our_ask} | {np.round(delta, 3)}')
