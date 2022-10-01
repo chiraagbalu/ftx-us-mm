@@ -103,14 +103,16 @@ while True:
         cur_quote = orders[orders['market'] == market]
         cur_bid = 0
         cur_ask = 0
-        nobid = False
-        noask = False
+        nobid = True
+        noask = True
         if not cur_quote[cur_quote['side'] == 'buy'].empty:
             cur_bid_id = cur_quote[cur_quote['side'] == 'buy']['id'].item()
             cur_bid = cur_quote[cur_quote['side'] == 'buy']['price'].item()
+            nobid = False
         if not cur_quote[cur_quote['side'] == 'sell'].empty:
             cur_ask_id = cur_quote[cur_quote['side'] == 'sell']['id'].item()
             cur_ask = cur_quote[cur_quote['side'] == 'sell']['price'].item()
+            nobid = True
 
         # get current inventory
         inventory = pd.DataFrame(rest.get_balances())[
