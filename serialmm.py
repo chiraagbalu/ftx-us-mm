@@ -42,6 +42,10 @@ with open("settings.yaml", "r") as f:
 markets = settings.keys()
 
 
+def nearest_tick(x, ticksize):
+    return ticksize * np.round(x/ticksize)
+
+
 # get current inventory
 bals = pd.DataFrame(rest.get_balances())
 init_inventory = bals[['coin', 'usdValue']].set_index('coin').to_dict()[
@@ -193,20 +197,17 @@ while True:
         mids[market].pop(0)
         r_vol = np.std(mids[market])
 
-        # fade is weird sometimes - too much/not enough adjust/ causes us to quote way above/below market
-        adjust = 1+(-fade*delta)
-        fair = mid * adjust
+        # adjust = fade*delta
+        # bidsigma 0 when fade*delta = -1 -> delta = -1 fade = 1
+        # when we are 100% short (-1) -> quote bid at fair value
+        # etc for asksigma
+        bidsigma = sigma*(1+(fade*delta))
+        asksigma = sigma*(1-(fade*delta))
 
-        # calculate our quote
-        our_bid = fair-(sigma*r_vol)
-        our_ask = fair+(sigma*r_vol)
+        # get bid ask - round to nearest tick
 
-        # if our quote is too tight, adjust to minticksize of market
-        if (our_ask-our_bid) < mintick:
-            our_bid = fair - 0.5*mintick
-            our_ask = fair + 0.5*mintick
-
-        # decide to add/cancel/mod
+        our_bid = mid - (bidsigma * r_vol)
+        our_ask = mid + (asksigma * r_vol)
 
         # check if bid, otherwise modify
         if nobid:
